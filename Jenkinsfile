@@ -1,6 +1,8 @@
 pipeline {
     agent any
-
+    tools {
+        "org.jenkinsci.plugins.terraform.TerraformInstallation" "terraform-0.11.8"
+    }
     parameters {
         string(name: 'environment', defaultValue: 'default', description: 'Workspace/environment file to use for deployment')
         string(name: 'version', defaultValue: '', description: 'Version variable to pass to Terraform')
@@ -8,8 +10,10 @@ pipeline {
     }
 
     environment {
+        TF_HOME = tool('terraform-0.15.4')
         AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
+        PATH = "$TF_HOME:$PATH"
         TF_IN_AUTOMATION      = '1'
     }
 
