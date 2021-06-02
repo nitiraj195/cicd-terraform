@@ -54,5 +54,14 @@ pipeline {
                 sh "terraform apply -input=false tfplan"
             }
         }
+
+        stage('Destroy') {
+          when {
+              expression {params.action == 'destroy'}
+          }
+          steps {
+                sh "terraform destroy -input=false tfplan"
+            }
+        }
     }
 }

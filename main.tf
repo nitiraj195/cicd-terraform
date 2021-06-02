@@ -1,3 +1,14 @@
+terraform {
+  backend "s3" {
+    bucket = "my-dev-env1905"
+    key    = "terraform/cicd.tfstate"
+    region = "us-east-1"
+   }
+}
+
+data "aws_caller_identity" "current" {}
+
+
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
