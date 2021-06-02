@@ -38,6 +38,14 @@ pipeline {
             }
         }
 
+        stage('Approval') {
+          steps {
+            script {
+              def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
+              }
+            }
+        }
+
         stage('Apply') {
           when { anyOf
                         {
@@ -45,7 +53,7 @@ pipeline {
                         }
           }
           steps {
-                sh "terraform apply -input=false tfplan -auto-approve"
+                sh "terraform apply -input=false tfplan"
             }
         }
 
