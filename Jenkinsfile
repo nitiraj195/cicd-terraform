@@ -73,7 +73,7 @@ pipeline {
     			steps {
     				script {
     					def IS_APPROVED = input(
-    						message: "Destroy ${ENV_NAME} !?!",
+    						message: "Destroy  ${environment} Infra !?!",
     						ok: "Yes",
     						parameters: [
     							string(name: 'IS_APPROVED', defaultValue: 'No', description: 'Think again!!!')
