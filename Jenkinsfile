@@ -23,7 +23,7 @@ pipeline {
                 script {
                     currentBuild.displayName = params.version
                 }
-                sh 'terraform init -input=false'
+                sh 'terraform init --backend-config=\"bucket=my-dev-env1905\" --backend-config=\"key=terraform/cicd.tfstate\" --backend-config=\"region=us-east-1\" -lock=false'
                 sh 'terraform workspace select ${environment}'
                 sh "terraform plan -input=false -out tfplan --var-file=env/${params.environment}.tfvars"
                 sh 'terraform show -no-color tfplan > tfplan.txt'
