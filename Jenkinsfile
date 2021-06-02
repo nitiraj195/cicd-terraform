@@ -60,7 +60,7 @@ pipeline {
               expression {params.action == 'destroy'}
           }
           steps {
-                sh "terraform destroy -input=false tfplan"
+                sh "terraform destroy -input=false --var-file=env/${params.environment}.tfvars -auto-approve"
             }
         }
     }
