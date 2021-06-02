@@ -5,8 +5,7 @@ pipeline {
     }
     parameters {
         string(name: 'environment', defaultValue: 'default', description: 'Workspace/environment file to use for deployment')
-        booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
-        choice(choices:['apply','destroy'], name: 'action', description: 'Select the action')
+        choice(choices:['plan','apply','destroy'], name: 'action', description: 'Select the action')
     }
 
     environment {
@@ -15,49 +14,46 @@ pipeline {
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         PATH = "$TF_HOME:$PATH"
         TF_IN_AUTOMATION      = '1'
+        ACTION = "${params.action}"
     }
 
     stages {
-        stage('Plan') {
-            steps {
-                script {
-                    currentBuild.displayName = params.version
-                }
+        stage('Envs Prep') {
+        steps {
                 sh "terraform init -force-copy"
                 sh 'terraform workspace select ${environment}'
+            }
+        }
+        stage('Plan') {
+            when { anyOf
+                          {
+                            environment name: 'ACTION', value: 'plan';
+                            environment name: 'ACTION', value: 'apply'
+					                }
+
+            }
+            steps {
                 sh "terraform plan -input=false -out tfplan --var-file=env/${params.environment}.tfvars"
                 sh 'terraform show -no-color tfplan > tfplan.txt'
             }
         }
 
-        stage('Approval') {
-            when {
-                not {
-                    equals expected: true, actual: params.autoApprove
-                }
-            }
-
-            steps {
-                script {
-                    def plan = readFile 'tfplan.txt'
-                    input message: "Do you want to apply the Plan?",
-                        parameters: [text(name: 'Plan', description: 'Please review the plan', defaultValue: plan)]
-                }
-            }
-        }
-
         stage('Apply') {
-          when {
-              expression {params.action == 'apply'}
+          when { anyOf
+                        {
+                          environment name: 'ACTION', value: 'apply'
+                        }
           }
           steps {
-                sh "terraform apply -input=false tfplan"
+                sh "terraform apply -input=false tfplan -auto-approve"
             }
         }
 
         stage('Destroy') {
-          when {
-              expression {params.action == 'destroy'}
+          when { anyOf
+                        {
+                          environment name: 'ACTION', value: 'destroy'
+                        }
           }
           steps {
                 sh "terraform destroy -input=false --var-file=env/${params.environment}.tfvars -auto-approve"
