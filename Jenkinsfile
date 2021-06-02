@@ -39,6 +39,13 @@ pipeline {
         }
 
         stage('Approval') {
+        when { anyOf
+                      {
+                        environment name: 'ACTION', value: 'plan';
+                        environment name: 'ACTION', value: 'apply'
+                      }
+
+        }
           steps {
             script {
               def userInput = input(id: 'confirm', message: 'Apply Terraform?', parameters: [ [$class: 'BooleanParameterDefinition', defaultValue: false, description: 'Apply terraform', name: 'confirm'] ])
@@ -57,7 +64,7 @@ pipeline {
             }
         }
 
-        stage('Destroy') {    
+        stage('Destroy') {
     			when { anyOf
     					{
     						environment name: 'ACTION', value: 'destroy';
