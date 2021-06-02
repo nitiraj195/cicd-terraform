@@ -41,7 +41,7 @@ pipeline {
         stage('Approval') {
         when { anyOf
                       {
-                        environment name: 'ACTION', value: 'plan'
+                        environment name: 'ACTION', value: 'apply'
                       }
 
         }
