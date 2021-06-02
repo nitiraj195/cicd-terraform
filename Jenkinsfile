@@ -6,6 +6,7 @@ pipeline {
     parameters {
         string(name: 'environment', defaultValue: 'default', description: 'Workspace/environment file to use for deployment')
         booleanParam(name: 'autoApprove', defaultValue: false, description: 'Automatically run apply after generating plan?')
+        choice(choices:['apply','destroy'], name: 'action', description: 'Select the action')
     }
 
     environment {
@@ -46,7 +47,10 @@ pipeline {
         }
 
         stage('Apply') {
-            steps {
+          when {
+              expression {params.action == 'apply'}
+          }
+          steps {
                 sh "terraform apply -input=false tfplan"
             }
         }
